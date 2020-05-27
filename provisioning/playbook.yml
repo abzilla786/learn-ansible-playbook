@@ -1,0 +1,32 @@
+- hosts: all
+  tasks:
+
+  - name : update sources and install nginx
+    sudo: yes
+    apt:
+      name: nginx
+      update_cache: yes
+
+  - name: move nginx configs to sites-available
+    copy:
+      src: roles/common/copy/proxy.conf
+      dest: /etc/nginx/sites-available/proxy.conf
+
+  - name: delete default nginx config
+    file:
+      path: /etc/nginx/sites-enabled/default
+      state: absent
+
+  - name: link new config to sites-enabled
+    file:
+      src: /etc/nginx/sites-available/proxy.conf
+      dest: /etc/nginx/sites-enabled/proxy.conf
+      state: link
+    notify:
+    - restart nginx
+
+  handlers:
+    - name: restart nginx
+      service:
+        name: nginx
+        state: restarted
