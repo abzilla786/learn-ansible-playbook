@@ -1,19 +1,25 @@
 ---
+  # hosts states which machine to provision
 - hosts: all
+  # become means which user you become after (yes = sudo)
   become: yes
+  # provisioning tasks
   tasks:
     - name: update sources and install nginx
       apt:
         name: nginx
         update_cache: yes
+
     - name: move nginx configs to sites-available
       copy:
         src: roles/common/copy/proxy.conf
         dest: /etc/nginx/sites-available/proxy.conf
+
     - name: delete default nginx config
       file:
         path: /etc/nginx/sites-enabled/default
         state: absent
+
     - name: link new config to sites-enabled
       file:
         src: /etc/nginx/sites-available/proxy.conf
